@@ -24,18 +24,12 @@ jobs:
     # Step 3: Install Newman
     - name: Install Newman
       run: npm install -g newman
-
-    # Step 4: Install the Newman HTML reporter
-    - name: Install newman HTML Reporter
-      run: npm install -g newman-reporter-html
+           npm install -g newman-reporter-htmlextra
 
     # Step 4: Run Newman tests
     - name: Run Postman Tests with Newman
       run: |
-        newman run JsonPlaceHolder.postman_collection.json \
-          -e TestVariable.postman_environment.json \
-          --reporters cli,html \
-          --reporter-html-export newman-report.html
+        newman run "JsonPlaceHolder.postman_collection.json" -e "TestVariable.postman_environment.json" -r cli,htmlextra --reporter-html-export newman-report.html
 
     # Step 5: Upload Newman report as artifact
     - name: Upload Test Results
