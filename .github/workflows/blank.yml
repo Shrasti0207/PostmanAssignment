@@ -1,19 +1,46 @@
-name: Automated API tests using Postman CLI
+name: Run Postman Tests
 
-on: push
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
-  automated-api-tests:
+  run-newman-tests:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Install Postman CLI
-        run: |
-          curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
-      - name: Login to Postman CLI
-        run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
-      - name: Run API tests
-        run: |
-          postman collection run "40491299-648274cb-2bbc-44d0-813e-c38299e4437c" -e "40491299-9137d8f1-9bdd-47d7-b25b-2b8e29355ca4" --iteration-data "./PostmanAssignment.csv"
-      - name: logout
-        run: postman logout ${{ secrets.POSTMAN_API_KEY }}
+    # Step 1: Check out the code
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # Step 2: Set up Node.js
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    # Step 3: Install Newman
+    - name: Install Newman
+      run: npm install -g newman
+
+    # Step 4: Install the Newman HTML reporter
+    - name: Install newman HTML Reporter
+      run: npm install -g newman-reporter-html
+
+    # Step 4: Run Newman tests
+    - name: Run Postman Tests with Newman
+      run: |
+        newman run JsonPlaceHolder.postman_collection.json \
+          -e TestVariable.postman_environment.json \
+          --reporters cli,html \
+          --reporter-html-export newman-report.html
+
+    # Step 5: Upload Newman report as artifact
+    - name: Upload Test Results
+      uses: actions/upload-artifact@v3
+      with:
+        name: newman-report
+        path: newman-report.xml
+
